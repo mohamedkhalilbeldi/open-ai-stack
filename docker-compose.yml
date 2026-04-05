@@ -1,0 +1,71 @@
+services:
+
+  # ─── PostgreSQL (LiteLLM backend store) ────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: litellm
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ─── LiteLLM proxy (port 4000) ─────────────────────────────────────────────
+  litellm:
+    image: ghcr.io/berriai/litellm:v1.83.1-nightly
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/litellm
+      STORE_MODEL_IN_DB: "True"
+    volumes:
+      - ./litellm-config.yaml:/app/config.yaml:ro
+      - copilot_cache:/root/.config/litellm/github_copilot
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        printf '%s' "$$GITHUB_COPILOT_TOKEN" > /root/.config/litellm/github_copilot/access-token &&
+        exec litellm --config /app/config.yaml --port 4000
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:4000/health/liveliness')"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+
+  # ─── Open WebUI (port 3000) ─────────────────────────────────────────────────
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    restart: unless-stopped
+    ports:
+      - "3000:8080"
+    environment:
+      # Point Open WebUI at LiteLLM (OpenAI-compatible endpoint)
+      OPENAI_API_BASE_URL: http://litellm:4000/v1
+      OPENAI_API_KEY: ${LITELLM_MASTER_KEY}
+      # Disable Ollama so the sidebar only shows LiteLLM models
+      ENABLE_OLLAMA_API: "false"
+      DEFAULT_MODELS: "gpt-5-mini"
+    volumes:
+      - openwebui_data:/app/backend/data
+    depends_on:
+      - litellm
+
+volumes:
+  postgres_data:
+  openwebui_data:
+  copilot_cache:

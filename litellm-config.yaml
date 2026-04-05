@@ -1,0 +1,40 @@
+model_list:
+
+  # ── Claude Sonnet 4.6 via GitHub Copilot ───────────────────────────────────
+  - model_name: claude-sonnet-4.6
+    litellm_params:
+      model: github_copilot/claude-sonnet-4.6
+      api_key: os.environ/GITHUB_COPILOT_TOKEN
+
+  # ── GPT-5 Mini via GitHub Copilot ──────────────────────────────────────────
+  - model_name: gpt-5-mini
+    litellm_params:
+      model: github_copilot/gpt-5-mini
+      api_key: os.environ/GITHUB_COPILOT_TOKEN
+
+  # ── GPT-5.3 Codex via GitHub Copilot ──────────────────────────────────────
+  - model_name: gpt-5.3-codex
+    litellm_params:
+      model: github_copilot/gpt-5.3-codex
+      api_key: os.environ/GITHUB_COPILOT_TOKEN
+
+  # ── GPT-5.4 via GitHub Copilot ────────────────────────────────────────────
+  - model_name: gpt-5.4
+    litellm_params:
+      model: github_copilot/gpt-5.4
+      api_key: os.environ/GITHUB_COPILOT_TOKEN
+
+  # ── Grok Code Fast 1 via GitHub Copilot ────────────────────────────────────
+  - model_name: grok-code-fast-1
+    litellm_params:
+      model: github_copilot/grok-code-fast-1
+      api_key: os.environ/GITHUB_COPILOT_TOKEN
+
+router_settings:
+  num_retries: 3
+  retry_after: 2
+
+general_settings:
+  database_url: "os.environ/DATABASE_URL"
+  store_model_in_db: true
+  master_key: "os.environ/LITELLM_MASTER_KEY"
