@@ -33,13 +33,6 @@ Browser
 | `gpt-5.4` | `github_copilot/gpt-5.4` |
 | `grok-code-fast-1` | `github_copilot/grok-code-fast-1` |
 
-### Moonshot AI — Kimi (free trial + pay-as-you-go)
-
-| Model name | Provider model ID |
-|---|---|
-| `kimi-k2.5` | `moonshot/kimi-k2.5` |
-| `kimi-k2-thinking` | `moonshot/kimi-k2-thinking` |
-
 **Default model in Open WebUI:** `gpt-5-mini`
 
 ---
